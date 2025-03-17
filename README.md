@@ -16,5 +16,5 @@ questions. The messages on the list are [archived][list_archive] for reference.
 [csi_spec]: https://github.com/container-storage-interface/spec
 [spec]: https://github.com/csi-addons/spec
 [kubernetes-csi-addons]: https://github.com/csi-addons/kubernetes-csi-addons
-[list]: https://listman.redhat.com/mailman/listinfo/csi-addons
-[list_archive]: https://listman.redhat.com/archives/csi-addons
+[list]: https://groups.google.com/a/redhat.com/g/csi-addons/about
+[list_archive]: https://groups.google.com/a/redhat.com/g/csi-addons
