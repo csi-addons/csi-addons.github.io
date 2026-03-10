@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSI-Addons - Advanced Storage Operations for Kubernetes</title>
+  <meta name="description" content="CSI-Addons extends the Container Storage Interface specification with advanced storage operations for Kubernetes including volume replication, space reclamation, network fencing, and more.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="nav-logo">
+        <svg class="logo-icon" viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="6" fill="#2563eb"/>
+          <path d="M8 12h6v8H8zM18 8h6v12h-6zM13 16h6v4h-6z" fill="#fff" opacity="0.9"/>
+          <path d="M13 10h6v4h-6z" fill="#93c5fd"/>
+        </svg>
+        <span>CSI-Addons</span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#getting-started">Get Started</a></li>
+        <li><a href="#repositories">Repositories</a></li>
+        <li><a href="#community">Community</a></li>
+        <li><a href="https://github.com/csi-addons" class="nav-github" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Advanced Storage Operations for Kubernetes</h1>
+        <p class="hero-subtitle">
+          CSI-Addons extends the <a href="https://github.com/container-storage-interface/spec" target="_blank" rel="noopener">Container Storage Interface</a>
+          with powerful operations for disaster recovery, performance optimization, and operational management of storage volumes.
+        </p>
+        <div class="hero-actions">
+          <a href="#getting-started" class="btn btn-primary">Get Started</a>
+          <a href="https://github.com/csi-addons/spec" class="btn btn-secondary" target="_blank" rel="noopener">View Spec</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-diagram">
+          <div class="diagram-layer layer-app">
+            <span>Kubernetes CRs</span>
+          </div>
+          <div class="diagram-arrow"></div>
+          <div class="diagram-layer layer-controller">
+            <span>CSI-Addons Controller</span>
+          </div>
+          <div class="diagram-arrow"></div>
+          <div class="diagram-layer layer-sidecar">
+            <span>CSI-Addons Sidecar</span>
+          </div>
+          <div class="diagram-arrow"></div>
+          <div class="diagram-layer layer-storage">
+            <span>Storage Backend</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <h2 class="section-title">Key Features</h2>
+      <p class="section-subtitle">A comprehensive set of storage operations beyond the core CSI specification</p>
+      <div class="features-grid">
+<!-- BEGIN:FEATURES -->
+<!-- END:FEATURES -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Section -->
+  <section class="architecture" id="architecture">
+    <div class="container">
+      <h2 class="section-title">Architecture</h2>
+      <p class="section-subtitle">A modular design built on Kubernetes Custom Resources and gRPC</p>
+
+      <div class="arch-grid">
+        <div class="arch-component">
+          <div class="arch-header">
+            <h3>Controller Manager</h3>
+          </div>
+          <p>Watches for Custom Resources in Kubernetes, discovers CSI-Addons sidecars, and routes operations to appropriate drivers. Supports leader election for high availability.</p>
+          <ul class="arch-details">
+            <li>Manages operation lifecycle and retries</li>
+            <li>Auto-creates CronJobs from annotations</li>
+            <li>TLS + token-based authentication</li>
+          </ul>
+        </div>
+
+        <div class="arch-component">
+          <div class="arch-header">
+            <h3>Sidecar</h3>
+          </div>
+          <p>Runs alongside CSI driver containers, registers with the controller via CSIAddonsNode CRs, and translates gRPC calls into driver operations.</p>
+          <ul class="arch-details">
+            <li>Auto-registers with CSIAddonsNode CR</li>
+            <li>Volume health condition reporting</li>
+            <li>Pluggable operation support</li>
+          </ul>
+        </div>
+
+        <div class="arch-component">
+          <div class="arch-header">
+            <h3>Custom Resources</h3>
+          </div>
+          <p>Kubernetes-native interface for all storage operations. Users create CRs to trigger operations, and status is reported back through CR conditions.</p>
+          <ul class="arch-details">
+<!-- BEGIN:CRDS -->
+<!-- END:CRDS -->
+          </ul>
+        </div>
+      </div>
+
+      <div class="arch-flow">
+        <h3>Operation Flow</h3>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-number">1</div>
+            <p>User creates a Custom Resource (e.g., ReclaimSpaceJob)</p>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-number">2</div>
+            <p>Controller Manager watches and processes the CR</p>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-number">3</div>
+            <p>Controller sends gRPC request to the appropriate Sidecar</p>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-number">4</div>
+            <p>Sidecar forwards the operation to the CSI Driver</p>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-number">5</div>
+            <p>Status is reported back through the CR</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Getting Started Section -->
+  <section class="getting-started" id="getting-started">
+    <div class="container">
+      <h2 class="section-title">Getting Started</h2>
+      <p class="section-subtitle">Deploy CSI-Addons on your Kubernetes cluster in minutes</p>
+
+      <div class="tabs">
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="yaml">YAML</button>
+          <button class="tab-btn" data-tab="kustomize">Kustomize</button>
+          <button class="tab-btn" data-tab="operator">Operator SDK</button>
+        </div>
+
+        <div class="tab-content active" id="tab-yaml">
+          <h3>Deploy with YAML manifests</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span>bash</span>
+              <button class="copy-btn" data-target="code-yaml">Copy</button>
+            </div>
+            <pre><code id="code-yaml"># Set the release version
+export RELEASE="{{LATEST_RELEASE}}"
+
+# Install CRDs
+kubectl create -f \
+  https://github.com/csi-addons/kubernetes-csi-addons/releases/download/${RELEASE}/crds.yaml
+
+# Install RBAC
+kubectl create -f \
+  https://github.com/csi-addons/kubernetes-csi-addons/releases/download/${RELEASE}/rbac.yaml
+
+# Deploy the controller
+kubectl create -f \
+  https://github.com/csi-addons/kubernetes-csi-addons/releases/download/${RELEASE}/setup-controller.yaml</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-kustomize">
+          <h3>Deploy with Kustomize</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span>bash</span>
+              <button class="copy-btn" data-target="code-kustomize">Copy</button>
+            </div>
+            <pre><code id="code-kustomize"># Clone the repository
+git clone https://github.com/csi-addons/kubernetes-csi-addons.git
+cd kubernetes-csi-addons
+
+# Deploy using make
+make deploy</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-operator">
+          <h3>Deploy with Operator SDK</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span>bash</span>
+              <button class="copy-btn" data-target="code-operator">Copy</button>
+            </div>
+            <pre><code id="code-operator"># Create the namespace
+kubectl create namespace storage-csi-addons
+
+# Run the operator bundle
+operator-sdk run bundle \
+  -n storage-csi-addons \
+  quay.io/csiaddons/k8s-bundle:latest</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-cr">
+        <h3>Example: Reclaim Space on a PVC</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span>yaml</span>
+            <button class="copy-btn" data-target="code-example">Copy</button>
+          </div>
+          <pre><code id="code-example">apiVersion: csiaddons.openshift.io/v1alpha1
+kind: ReclaimSpaceJob
+metadata:
+  name: reclaim-space-my-pvc
+spec:
+  target:
+    persistentVolumeClaim: my-pvc
+  backOffLimit: 10
+  timeout: 600</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Repositories Section -->
+  <section class="repositories" id="repositories">
+    <div class="container">
+      <h2 class="section-title">Repositories</h2>
+      <p class="section-subtitle">The CSI-Addons ecosystem is composed of several focused repositories</p>
+      <div class="repo-grid">
+
+        <a href="https://github.com/csi-addons/spec" class="repo-card" target="_blank" rel="noopener">
+          <div class="repo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+          </div>
+          <h3>spec</h3>
+          <p>gRPC specification and protocol buffer definitions for all CSI-Addons operations.</p>
+        </a>
+
+        <a href="https://github.com/csi-addons/kubernetes-csi-addons" class="repo-card" target="_blank" rel="noopener">
+          <div class="repo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22,8.5 12,15.5 2,8.5"/><polyline points="2,15.5 12,8.5 22,15.5"/><line x1="12" y1="2" x2="12" y2="8.5"/></svg>
+          </div>
+          <h3>kubernetes-csi-addons</h3>
+          <p>Kubernetes controllers, sidecar, and CLI tool. The reference implementation of CSI-Addons.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Section -->
+  <section class="community" id="community">
+    <div class="container">
+      <h2 class="section-title">Community</h2>
+      <p class="section-subtitle">CSI-Addons is an open-source, community-driven project</p>
+      <div class="community-grid">
+        <div class="community-card">
+          <h3>Mailing List</h3>
+          <p>Join the open discussion list for questions, proposals, and announcements.</p>
+          <a href="https://groups.google.com/a/redhat.com/g/csi-addons/about" class="btn btn-outline" target="_blank" rel="noopener">Join the List</a>
+        </div>
+        <div class="community-card">
+          <h3>Archives</h3>
+          <p>Browse past discussions and decisions in the mailing list archives. Requires joining the list with a Google account.</p>
+          <a href="https://groups.google.com/a/redhat.com/g/csi-addons" class="btn btn-outline" target="_blank" rel="noopener">View Archives</a>
+        </div>
+        <div class="community-card">
+          <h3>Contribute</h3>
+          <p>Contribute code, report bugs, or suggest features on GitHub.</p>
+          <a href="https://github.com/csi-addons" class="btn btn-outline" target="_blank" rel="noopener">GitHub Organization</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="footer-logo">CSI-Addons</span>
+          <p>Advanced storage operations for Kubernetes</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Project</h4>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#architecture">Architecture</a></li>
+              <li><a href="#getting-started">Get Started</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="https://github.com/csi-addons/spec" target="_blank" rel="noopener">Specification</a></li>
+              <li><a href="https://github.com/csi-addons/kubernetes-csi-addons" target="_blank" rel="noopener">Kubernetes Implementation</a></li>
+              <li><a href="https://github.com/csi-addons" target="_blank" rel="noopener">All Repositories</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Community</h4>
+            <ul>
+              <li><a href="https://groups.google.com/a/redhat.com/g/csi-addons/about" target="_blank" rel="noopener">Mailing List</a></li>
+              <li><a href="https://github.com/csi-addons" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Licensed under the <a href="https://github.com/csi-addons/csi-addons.github.io/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

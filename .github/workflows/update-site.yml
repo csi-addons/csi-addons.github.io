@@ -1,0 +1,69 @@
+name: Update Site Content
+
+on:
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout website repo
+        uses: actions/checkout@v4
+
+      - name: Clone spec repo
+        uses: actions/checkout@v4
+        with:
+          repository: csi-addons/spec
+          path: _repos/spec
+
+      - name: Clone kubernetes-csi-addons repo
+        uses: actions/checkout@v4
+        with:
+          repository: csi-addons/kubernetes-csi-addons
+          path: _repos/kubernetes-csi-addons
+          fetch-depth: 0 # Need full history for git tags
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Generate site
+        run: ./scripts/generate-site.sh _repos/spec _repos/kubernetes-csi-addons
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet index.html || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "Update site content from spec and kubernetes-csi-addons"
+          title: "Update site content"
+          body: |
+            Automated update of website content from upstream repositories.
+
+            Changes were detected in `index.html` after regenerating from:
+            - [csi-addons/spec](https://github.com/csi-addons/spec)
+            - [csi-addons/kubernetes-csi-addons](https://github.com/csi-addons/kubernetes-csi-addons)
+
+            This may include:
+            - New or updated feature descriptions
+            - New CRD types
+            - Updated latest release version
+            - New spec operations (RPCs)
+
+            Please review the changes and merge if they look correct.
+          branch: automated/update-site-content
+          delete-branch: true
+          labels: automated
